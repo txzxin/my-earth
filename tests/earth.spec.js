@@ -85,6 +85,12 @@ test('zoom, drag, automatic rotation and country picking work', async ({ page, i
     const dist = Number(await stage.getAttribute('data-distance'));
     await page.mouse.wheel(0, -220);
     await expect.poll(async () => Number(await stage.getAttribute('data-distance'))).toBeLessThan(dist);
+    // Geographic labels must not swallow wheel input over the globe.
+    const label = page.locator('.map-label:visible').first();
+    await label.hover();
+    const labelDistance = Number(await stage.getAttribute('data-distance'));
+    await page.mouse.wheel(0, -220);
+    await expect.poll(async () => Number(await stage.getAttribute('data-distance'))).toBeLessThan(labelDistance);
   }
   await page.locator('#rotate-toggle').click();
   await expect(page.locator('#rotate-toggle')).toHaveAttribute('aria-pressed', 'true');

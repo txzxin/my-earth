@@ -135,6 +135,15 @@ export async function createEarth(host, data, callbacks) {
   controls.addEventListener('change', () => { needsRender = true; });
   let labelsEnabled = true;
   const labelRoot = document.createElement('div'); labelRoot.className = 'map-labels'; host.append(labelRoot);
+  // Labels remain clickable, while wheel gestures must reach the globe underneath.
+  labelRoot.addEventListener('wheel', event => {
+    event.preventDefault();
+    renderer.domElement.dispatchEvent(new WheelEvent('wheel', {
+      deltaX: event.deltaX, deltaY: event.deltaY, deltaZ: event.deltaZ, deltaMode: event.deltaMode,
+      clientX: event.clientX, clientY: event.clientY, ctrlKey: event.ctrlKey,
+      shiftKey: event.shiftKey, metaKey: event.metaKey, cancelable: true,
+    }));
+  }, { passive: false });
   const labelPlaces = data.places.filter(p => p.featureId || p.type === 'city' || ['mountain', 'river', 'lake', 'desert'].includes(p.type));
   const labelItems = labelPlaces.map(place => {
     const el = document.createElement('button'); el.className = `map-label label-${place.type}`; el.textContent = place.name;
